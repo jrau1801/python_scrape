@@ -9,7 +9,6 @@ def scrape():
 
 # READ AND WRITE FILES
 
-
     links = []
 
     with open("links.txt", "r", encoding="utf-8") as file:
@@ -50,7 +49,6 @@ def scrape():
 ########################################################## 
 
 # KANJI
-
 
             a_tag = jukugo_wrapper.find("a", id=f"jk_{id}")
 
