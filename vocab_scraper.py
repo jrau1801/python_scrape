@@ -52,7 +52,58 @@ def scrape_vocab_once(url, headers):
 
 
 
-        
+def scrape_with_spaces():
+    url = "https://www.kanshudo.com/collections/vocab_usefulness/UFN-1-101"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    #id = "326530"  # no text
+    #id = "99913" # no space
+    id = "266088"  # with space
+
+    response = requests.get(url, headers=headers)
+    
+    soup = BeautifulSoup(response.text, "html.parser")
+
+
+
+    jukugo_wrapper = soup.find("div", id=f"jukugo_{id}")
+
+
+
+    # SYMBOLS
+    #
+    #
+
+    a_tag = jukugo_wrapper.find("a", id=f"jk_{id}")
+
+    jap_span = a_tag.find_all("span", id=f"jk_jk_{id}_fc")
+
+
+    furigana = ""
+    kanji = ""
+
+    for span in jap_span:
+        for div in span:
+            class_list = div.get("class", [])
+
+            if "furigana" in class_list:
+                furigana = furigana + div.get_text(strip=True)
+    
+            elif "f_kanji" in class_list:
+                kanji = kanji + div.get_text(strip=True)
+
+    if furigana == "":
+        print(a_tag.text)
+    else:
+        print(furigana)
+        print(kanji)
+
+    #
+    #
+    #
+
         
 def scrape_vocab_all_one_link():
     pass
@@ -68,4 +119,5 @@ if __name__ == '__main__':
         "User-Agent": "Mozilla/5.0"
     }
 
-    scrape_vocab_once(url, headers)
+    #scrape_vocab_once(url, headers)
+    scrape_with_spaces()
