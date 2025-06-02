@@ -1,63 +1,17 @@
 import requests
 from bs4 import BeautifulSoup
 from bs4 import NavigableString
-
-
-
-def scrape_vocab_once(url, headers):
-
-    id = "115002"
-
-    response = requests.get(url, headers=headers)
-    
-    soup = BeautifulSoup(response.text, "html.parser")
-
-
-
-    jukugo_wrapper = soup.find("div", id=f"jukugo_{id}")
-
-
-
-    # SYMBOLS
-    #
-    #
-
-    jap_span = jukugo_wrapper.find("span", id=f"jk_jk_{id}_fc")
-
-    for div in jap_span:
-        print(div)
-
-    #
-    #
-    #
-
-
-
-
-    # TRANSLATIONS
-    #
-    #
-
-    vm_divs = jukugo_wrapper.find_all("div", class_="vm")
-
-    print(', '.join(
-        ''.join(child.strip() for child in div.contents if isinstance(child, NavigableString) and child.strip())
-        for div in vm_divs
-    ))
-    
-    #
-    #
-    #
-
-
-
+import re
 
 def scrape_with_spaces():
-    url = "https://www.kanshudo.com/collections/vocab_usefulness/UFN-1-101"
+
+    #url = "https://www.kanshudo.com/collections/vocab_usefulness/UFN-5-4901" #multiple spaces
+    #id = "261471"
+
     headers = {
         "User-Agent": "Mozilla/5.0"
     }
-
+    url = "https://www.kanshudo.com/collections/vocab_usefulness/UFN-1-101"
     #id = "326530"  # no text
     #id = "99913" # no space
     id = "266088"  # with space
@@ -71,46 +25,66 @@ def scrape_with_spaces():
     jukugo_wrapper = soup.find("div", id=f"jukugo_{id}")
 
 
+########################################################## 
 
-    # SYMBOLS
-    #
-    #
+# KANJI
+
 
     a_tag = jukugo_wrapper.find("a", id=f"jk_{id}")
 
-    jap_span = a_tag.find_all("span", id=f"jk_jk_{id}_fc")
+    onclick_attr = a_tag.get("onclick", "")
 
+    match = re.search(r"wordDetails\([^,]+,\s*'([^']+)'", onclick_attr)
+
+    word = ""
+    if match:
+        word = match.group(1)
+
+
+##########################################################
+
+# FURIGANA
 
     furigana = ""
-    kanji = ""
+    jap_span = a_tag.find_all("span", id=f"jk_jk_{id}_fc")
+    furigana_parts = []
+    kanji = word
 
     for span in jap_span:
         for div in span:
             class_list = div.get("class", [])
 
             if "furigana" in class_list:
-                furigana = furigana + div.get_text(strip=True)
-    
-            elif "f_kanji" in class_list:
-                kanji = kanji + div.get_text(strip=True)
+                furigana_parts.append(div.get_text(strip=True))
+
+
+        furigana = ', '.join(furigana_parts)
+
+
+##########################################################
+
+# TRANSLATIONS
+
+    vm_divs = jukugo_wrapper.find_all("div", class_="vm")
+
+    translations= ', '.join(
+        ''.join(child.strip() for child in div.contents if isinstance(child, NavigableString) and child.strip())
+        for div in vm_divs
+    )
+
+
+##########################################################
+
+# RESULT
 
     if furigana == "":
-        print(a_tag.text)
-    else:
-        print(furigana)
-        print(kanji)
+        result = kanji + " | " + translations
+    else: 
+        result = kanji + " | " + furigana + " | " + translations
 
-    #
-    #
-    #
-
-        
-def scrape_vocab_all_one_link():
-    pass
+    print(result)
 
 
-def scrape_vocab_all_links():
-    pass
 
 
 if __name__ == '__main__':
@@ -119,5 +93,4 @@ if __name__ == '__main__':
         "User-Agent": "Mozilla/5.0"
     }
 
-    #scrape_vocab_once(url, headers)
     scrape_with_spaces()
