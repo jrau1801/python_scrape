@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from bs4 import NavigableString
 import re
 
-def scrape_with_spaces():
+def scrape():
 
 ########################################################## 
 
@@ -112,4 +112,4 @@ def scrape_with_spaces():
 
 if __name__ == '__main__':
 
-    scrape_with_spaces()
+    scrape()
