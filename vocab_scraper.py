@@ -4,17 +4,15 @@ from bs4 import NavigableString
 
 
 
-def scrape_vocab_once():
-    url = "https://www.kanshudo.com/collections/vocab_usefulness/UFN-1-1"
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+def scrape_vocab_once(url, headers):
 
     id = "115002"
 
     response = requests.get(url, headers=headers)
     
     soup = BeautifulSoup(response.text, "html.parser")
+
+
 
     jukugo_wrapper = soup.find("div", id=f"jukugo_{id}")
 
@@ -26,14 +24,15 @@ def scrape_vocab_once():
 
     jap_span = jukugo_wrapper.find("span", id=f"jk_jk_{id}_fc")
 
-    print(jap_span)
+    for div in jap_span:
+        print(div)
 
     #
     #
     #
 
 
-    
+
 
     # TRANSLATIONS
     #
@@ -64,4 +63,9 @@ def scrape_vocab_all_links():
 
 
 if __name__ == '__main__':
-    scrape_vocab_once()
+    url = "https://www.kanshudo.com/collections/vocab_usefulness/UFN-1-1"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    scrape_vocab_once(url, headers)
