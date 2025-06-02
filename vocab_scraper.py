@@ -5,92 +5,111 @@ import re
 
 def scrape_with_spaces():
 
-    #url = "https://www.kanshudo.com/collections/vocab_usefulness/UFN-5-4901" #multiple spaces
-    #id = "261471"
+########################################################## 
+
+# READ AND WRITE FILES
+
+
+    links = []
+
+    with open("links.txt", "r", encoding="utf-8") as file:
+        links = [line.strip() for line in file if line.strip()]
+
+    with open("vocab.txt", "a", encoding="utf-8") as f:
+        f.write("#separator: tab\n#html:true\n")
+
 
     headers = {
         "User-Agent": "Mozilla/5.0"
     }
-    url = "https://www.kanshudo.com/collections/vocab_usefulness/UFN-1-101"
-    #id = "326530"  # no text
-    #id = "99913" # no space
-    id = "266088"  # with space
 
-    response = requests.get(url, headers=headers)
-    
-    soup = BeautifulSoup(response.text, "html.parser")
-
-
-
-    jukugo_wrapper = soup.find("div", id=f"jukugo_{id}")
 
 
 ########################################################## 
 
-# KANJI
+# FULL PAGE
+
+    for link in links:
 
 
-    a_tag = jukugo_wrapper.find("a", id=f"jk_{id}")
+        response = requests.get(link, headers=headers)
+        
+        soup = BeautifulSoup(response.text, "html.parser")
 
-    onclick_attr = a_tag.get("onclick", "")
+        jukugo_wrappers = soup.find_all("div", id=re.compile(r"^jukugo_\d+$"))
 
-    match = re.search(r"wordDetails\([^,]+,\s*'([^']+)'", onclick_attr)
+        for jukugo_wrapper in jukugo_wrappers:
 
-    word = ""
-    if match:
-        word = match.group(1)
+            id_attr = jukugo_wrapper.get("id", "")
 
-
-##########################################################
-
-# FURIGANA
-
-    furigana = ""
-    jap_span = a_tag.find_all("span", id=f"jk_jk_{id}_fc")
-    furigana_parts = []
-    kanji = word
-
-    for span in jap_span:
-        for div in span:
-            class_list = div.get("class", [])
-
-            if "furigana" in class_list:
-                furigana_parts.append(div.get_text(strip=True))
+            match = re.search(r"jukugo_(\d+)", id_attr)
+            id = match.group(1)
 
 
-        furigana = ', '.join(furigana_parts)
+
+    ########################################################## 
+
+    # KANJI
 
 
-##########################################################
+            a_tag = jukugo_wrapper.find("a", id=f"jk_{id}")
 
-# TRANSLATIONS
+            onclick_attr = a_tag.get("onclick", "")
 
-    vm_divs = jukugo_wrapper.find_all("div", class_="vm")
+            match = re.search(r"wordDetails\([^,]+,\s*'([^']+)'", onclick_attr)
 
-    translations= ', '.join(
-        ''.join(child.strip() for child in div.contents if isinstance(child, NavigableString) and child.strip())
-        for div in vm_divs
-    )
+            word = ""
+            if match:
+                word = match.group(1)
 
 
-##########################################################
+    ##########################################################
 
-# RESULT
+    # FURIGANA
 
-    if furigana == "":
-        result = kanji + " | " + translations
-    else: 
-        result = kanji + " | " + furigana + " | " + translations
+            furigana = ""
+            jap_span = a_tag.find_all("span", id=f"jk_jk_{id}_fc")
+            furigana_parts = []
+            kanji = word
 
-    print(result)
+            for span in jap_span:
+                for div in span:
+                    class_list = div.get("class", [])
 
+                    if "furigana" in class_list:
+                        furigana_parts.append(div.get_text(strip=True))
+
+
+                furigana = ', '.join(furigana_parts)
+
+
+    ##########################################################
+
+    # TRANSLATIONS
+
+            vm_divs = jukugo_wrapper.find_all("div", class_="vm")
+
+            translations= ', '.join(
+                ''.join(child.strip() for child in div.contents if isinstance(child, NavigableString) and child.strip())
+                for div in vm_divs
+            )
+
+
+    ##########################################################
+
+    # RESULT
+
+            if furigana == "":
+                result = kanji
+            else: 
+                result = kanji + " | " + furigana
+
+
+            with open("vocab.txt", "a", encoding="utf-8") as f:
+                f.write(result + "\t" + translations + "\n")
 
 
 
 if __name__ == '__main__':
-    url = "https://www.kanshudo.com/collections/vocab_usefulness/UFN-1-1"
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
 
     scrape_with_spaces()
