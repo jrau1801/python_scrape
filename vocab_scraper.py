@@ -47,9 +47,9 @@ def scrape_with_spaces():
 
 
 
-    ########################################################## 
+########################################################## 
 
-    # KANJI
+# KANJI
 
 
             a_tag = jukugo_wrapper.find("a", id=f"jk_{id}")
@@ -63,9 +63,9 @@ def scrape_with_spaces():
                 word = match.group(1)
 
 
-    ##########################################################
+##########################################################
 
-    # FURIGANA
+# FURIGANA
 
             furigana = ""
             jap_span = a_tag.find_all("span", id=f"jk_jk_{id}_fc")
@@ -83,9 +83,9 @@ def scrape_with_spaces():
                 furigana = ', '.join(furigana_parts)
 
 
-    ##########################################################
+##########################################################
 
-    # TRANSLATIONS
+# TRANSLATIONS
 
             vm_divs = jukugo_wrapper.find_all("div", class_="vm")
 
@@ -95,9 +95,9 @@ def scrape_with_spaces():
             )
 
 
-    ##########################################################
+##########################################################
 
-    # RESULT
+# RESULT
 
             if furigana == "":
                 result = kanji
