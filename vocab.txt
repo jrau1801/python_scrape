@@ -99,8 +99,6 @@
 麻痺 | まひ	paralysis; palsy; numbness; stupor
 あま	nun, bitch
 縄張り | なわば	roping off; stretching rope; demarcation, one's turf; domain; territory; sphere of influence
-#separator: tab
-#html:true
 時間 | じかん	time, hours (period of)
 学校 | がっこう	school
 大学 | だいがく	post-secondary education institution, incl. university, college, etc., former central university of Kyoto (established under the ritsuryo system for the training of government administrators)
